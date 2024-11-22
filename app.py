@@ -40,51 +40,55 @@ def get_rag_response(question):
             "params": {"nprobe": 10},
         }
         
-        # Search in Milvus
+        # Search in Milvus with dynamic field
         results = collection.search(
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
             limit=3,
-            output_fields=["content"]  # Assuming 'content' is the field name
+            output_fields=["text"]  # Changed to "text" field
         )
 
         # Extract documents and metadata
         retrieved_docs = []
         for hit in results[0]:
-            if hasattr(hit.entity, 'content'):
-                content = hit.entity.content
-                similarity = round((1 - hit.distance) * 100, 2)  # Convert distance to similarity percentage
+            # Print the available fields for debugging
+            st.write("Available fields in hit:", dir(hit.entity))
+            
+            # Try to get the document text
+            doc_text = None
+            if hasattr(hit.entity, 'text'):
+                doc_text = hit.entity.text
+            elif hasattr(hit.entity, '$doc'):
+                doc_text = hit.entity['$doc']
+            elif hasattr(hit.entity, 'document'):
+                doc_text = hit.entity.document
+            
+            if doc_text:
+                similarity = round((1 - hit.distance) * 100, 2)
                 retrieved_docs.append({
-                    "content": content,
+                    "content": doc_text,
                     "similarity": similarity
                 })
 
         if not retrieved_docs:
             return {
-                "response": "No relevant information found.",
+                "response": "I couldn't find any relevant information in my knowledge base. Could you please rephrase your question?",
                 "metadata": None
             }
 
-        # Format context with similarity scores
-        context_parts = []
-        for i, doc in enumerate(retrieved_docs, 1):
-            context_parts.append(f"[Document {i} - Similarity: {doc['similarity']}%]\n{doc['content']}\n")
-        
-        context = "\n".join(context_parts)
+        # Format context
+        context = "\n\n".join([f"{i+1}. {doc['content']}" for i, doc in enumerate(retrieved_docs)])
 
         # Generate response using ChatGPT
         messages = [
             {
                 "role": "system",
-                "content": "You are a helpful AI assistant that provides clear, accurate answers about Milvus based on the given context. Format your responses using markdown for better readability."
+                "content": "You are a helpful AI assistant that provides clear, accurate answers about Milvus based on the given context. Use markdown formatting for better readability."
             },
             {
                 "role": "user",
-                "content": f"""Based on the following context, answer this question: {question}
-
-Context:
-{context}"""
+                "content": f"Question: {question}\n\nContext: {context}"
             }
         ]
 
@@ -102,8 +106,11 @@ Context:
         }
     
     except Exception as e:
+        st.error(f"Debug - Error details: {str(e)}")
+        # Print collection schema for debugging
+        st.write("Collection Schema:", collection.schema)
         return {
-            "response": f"Error: {str(e)}",
+            "response": "I'm having trouble accessing the knowledge base. Please try again in a moment.",
             "metadata": None
         }
 
@@ -118,18 +125,14 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         if message["role"] == "assistant":
-            # Display main response
             st.markdown(message["content"]["response"])
-            
-            # Display metadata in expander if available
             if message["content"]["metadata"]:
-                with st.expander("View Source Documents"):
+                with st.expander("View Sources"):
                     for i, source in enumerate(message["content"]["metadata"]["sources"], 1):
                         st.markdown(f"""
-                        **Document {i}**
-                        - Similarity Score: {source['similarity']}%
+                        **Source {i}** (Similarity: {source['similarity']}%)
                         ```
-                        {source['content'][:200]}...
+                        {source['content']}
                         ```
                         """)
         else:
@@ -144,18 +147,17 @@ if prompt := st.chat_input("Ask a question about Milvus..."):
 
     # Display assistant response
     with st.chat_message("assistant"):
-        with st.spinner("Searching and analyzing..."):
+        with st.spinner("Searching knowledge base..."):
             response_data = get_rag_response(prompt)
             st.markdown(response_data["response"])
             
             if response_data["metadata"]:
-                with st.expander("View Source Documents"):
+                with st.expander("View Sources"):
                     for i, source in enumerate(response_data["metadata"]["sources"], 1):
                         st.markdown(f"""
-                        **Document {i}**
-                        - Similarity Score: {source['similarity']}%
+                        **Source {i}** (Similarity: {source['similarity']}%)
                         ```
-                        {source['content'][:200]}...
+                        {source['content']}
                         ```
                         """)
     
@@ -165,14 +167,16 @@ if prompt := st.chat_input("Ask a question about Milvus..."):
 with st.sidebar:
     st.title("About")
     st.markdown("""
-    ### Features
-    - Real-time semantic search
-    - Source document tracking
-    - Similarity scoring
-    - Markdown-formatted responses
+    ### 🤖 AI-Powered Milvus Chat
     
-    ### Technologies
-    - 🔍 Milvus Vector DB
-    - 🤖 OpenAI Embeddings & Chat
-    - 🚀 Streamlit UI
+    This chatbot uses:
+    - Semantic search with Milvus
+    - OpenAI embeddings & chat
+    - Source verification
+    
+    Ask questions about Milvus documentation!
     """)
+
+    # Debug info in sidebar
+    with st.expander("Debug Info"):
+        st.write("Collection Schema:", collection.schema)
