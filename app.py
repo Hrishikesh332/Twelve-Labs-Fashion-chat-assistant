@@ -218,7 +218,7 @@ def render_product_details(source):
                     <div style="background: linear-gradient(90deg, #FF4B6B {source['similarity']}%, #f1f1f1 {source['similarity']}%); 
                          height: 6px; border-radius: 3px; margin-bottom: 0.5rem;"></div>
                     <p style="color: #666;">Similarity Score: {source['similarity']}%</p>
-                    <p style="color: #666; font-size: 0.8em;">Raw Score: {source.get('raw_score', 'N/A')}</p>
+                    # <p style="color: #666; font-size: 0.8em;">Raw Score: {source.get('raw_score', 'N/A')}</p>
                 </div>
                 <p style="color: #333; font-size: 1.1em;">{source['description']}</p>
                 <p style="color: #666;">Product ID: {source['product_id']}</p>
