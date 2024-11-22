@@ -7,3 +7,4 @@ twelvelabs
 python-dotenv
 torch
 torchvision
+openai
