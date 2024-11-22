@@ -40,7 +40,7 @@ def get_rag_response(question):
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
-            limit=2,
+            limit=3,
             output_fields=['metadata']
         )
 
@@ -108,6 +108,23 @@ def get_rag_response(question):
             "metadata": None
         }
 
+def render_product_details(source):
+    """Render product details with embedded video"""
+    st.markdown(f"""
+    ### {source['title']}
+    - **Similarity Score:** {source['similarity']}%
+    - **Description:** {source['description']}
+    - **Product ID:** {source['product_id']}
+    """)
+    
+    # Product link
+    st.markdown(f"**[View Product Page]({source['link']})**")
+    
+    # Video rendering
+    if source['video_url']:
+        st.markdown("### Product Video")
+        st.video(source['video_url'])
+
 # Streamlit UI
 st.title("🛍️ E-commerce Product Assistant")
 
@@ -125,18 +142,9 @@ for message in st.session_state.messages:
             # Display metadata in expander if available
             if message["content"]["metadata"]:
                 with st.expander("View Product Details"):
-                    for i, source in enumerate(message["content"]["metadata"]["sources"], 1):
-                        st.markdown(f"""
-                        ### {source['title']}
-                        - **Similarity Score:** {source['similarity']}%
-                        - **Description:** {source['description']}
-                        - **Product ID:** {source['product_id']}
-                        
-                        **Links:**
-                        - [Product Page]({source['link']})
-                        - [Video]({source['video_url']})
-                        ---
-                        """)
+                    for source in message["content"]["metadata"]["sources"]:
+                        render_product_details(source)
+                        st.markdown("---")
         else:
             st.markdown(message["content"])
 
@@ -155,18 +163,9 @@ if prompt := st.chat_input("Ask about our products..."):
             
             if response_data["metadata"]:
                 with st.expander("View Product Details"):
-                    for i, source in enumerate(response_data["metadata"]["sources"], 1):
-                        st.markdown(f"""
-                        ### {source['title']}
-                        - **Similarity Score:** {source['similarity']}%
-                        - **Description:** {source['description']}
-                        - **Product ID:** {source['product_id']}
-                        
-                        **Links:**
-                        - [Product Page]({source['link']})
-                        - [Video]({source['video_url']})
-                        ---
-                        """)
+                    for source in response_data["metadata"]["sources"]:
+                        render_product_details(source)
+                        st.markdown("---")
     
     st.session_state.messages.append({"role": "assistant", "content": response_data})
 
@@ -180,7 +179,7 @@ with st.sidebar:
     - Understanding natural language queries
     - Searching through product catalog
     - Providing detailed product information
-    - Showing related videos and links
+    - Showing product videos
     
     Ask about any product to get started!
     """)
