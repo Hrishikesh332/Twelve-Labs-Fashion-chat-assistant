@@ -86,24 +86,26 @@ def emb_text(text):
 
 # Function to get RAG response
 def get_rag_response(question):
-    # Search for similar content in Milvus
-    search_res = milvus_client.search(
-        data=[emb_text(question)],
-        limit=3,
-        search_params={"metric_type": "IP", "params": {}},
-        output_fields=["text"]
+    # Search in Milvus collection
+    results = collection.search(
+        data=[question_embedding],  # Search vector
+        anns_field="vector",       # Field to search
+        param=search_params,       # Search parameters
+        limit=3,                   # Top k
+        output_fields=["text"]     # Fields to return
     )
 
     # Extract retrieved documents
     retrieved_lines_with_distances = [
-        (res["entity"]["text"], res["distance"])
-        for res in search_res[0]
+        (hit.entity.get("text"), hit.distance)
+        for hit in results[0]
     ]
 
     # Convert retrieved documents to context string
     context = "\n".join(
         [line_with_distance[0] for line_with_distance in retrieved_lines_with_distances]
     )
+
 
     # Define prompts
     SYSTEM_PROMPT = """
