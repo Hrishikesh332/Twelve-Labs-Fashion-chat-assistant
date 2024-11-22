@@ -81,62 +81,72 @@ def emb_text(text):
     )
     return result.data[0].embedding
 
-# Function to get RAG response
 def get_rag_response(question):
-    # Generate embedding for the question
-    question_embedding = emb_text(question)
-    
-    # Search parameters
-    search_params = {
-        "metric_type": "COSINE",
-        "params": {"nprobe": 10},
-    }
-    
-    # Search in Milvus collection
-    results = collection.search(
-        data=[question_embedding],  # Search vector
-        anns_field="vector",       # Field to search
-        param=search_params,       # Search parameters
-        limit=3,                   # Top k
-        output_fields=["text"]     # Fields to return
-    )
+    try:
+        # Generate embedding for the question
+        question_embedding = emb_text(question)
+        
+        # Search parameters
+        search_params = {
+            "metric_type": "COSINE",
+            "params": {"nprobe": 10},
+        }
+        
+        # Search in Milvus collection
+        results = collection.search(
+            data=[question_embedding],  # Search vector
+            anns_field="vector",       # Field to search
+            param=search_params,       # Search parameters
+            limit=3,                   # Top k
+            output_fields=["text"]     # Fields to return
+        )
 
-    # Extract retrieved documents
-    retrieved_lines_with_distances = [
-        (hit.entity.get("text"), hit.distance)
-        for hit in results[0]
-    ]
+        # Debug print
+        st.write("Search Results:", results)  # This will help us see the structure of results
 
-    # Convert retrieved documents to context string
-    context = "\n".join(
-        [line_with_distance[0] for line_with_distance in retrieved_lines_with_distances]
-    )
+        # Extract retrieved documents - modified to handle Milvus response format
+        retrieved_documents = []
+        for hit in results[0]:
+            text = hit.entity.get('text', '')
+            distance = hit.score
+            if text:  # Only add if text exists
+                retrieved_documents.append((text, distance))
 
-    # Define prompts
-    SYSTEM_PROMPT = """
-    You are an AI assistant. You are able to find answers to the questions from the contextual passage snippets provided.
-    """
+        # If no results found
+        if not retrieved_documents:
+            return "I couldn't find any relevant information to answer your question. Please try asking something else."
 
-    USER_PROMPT = f"""
-    Use the following pieces of information enclosed in <context> tags to provide an answer to the question enclosed in <question> tags.
-    <context>
-    {context}
-    </context>
-    <question>
-    {question}
-    </question>
-    """
+        # Convert retrieved documents to context string
+        context = "\n".join([doc[0] for doc in retrieved_documents])
 
-    # Generate response using OpenAI
-    response = openai_client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": USER_PROMPT},
-        ],
-    )
+        # Define prompts
+        SYSTEM_PROMPT = """
+        You are an AI assistant. You are able to find answers to the questions from the contextual passage snippets provided.
+        """
 
-    return response.choices[0].message.content
+        USER_PROMPT = f"""
+        Use the following pieces of information enclosed in <context> tags to provide an answer to the question enclosed in <question> tags.
+        <context>
+        {context}
+        </context>
+        <question>
+        {question}
+        </question>
+        """
+
+        # Generate response using OpenAI
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": USER_PROMPT},
+            ],
+        )
+
+        return response.choices[0].message.content
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        return f"I encountered an error while processing your question: {str(e)}"
 
 # Streamlit UI
 st.title("📚 RAG Chatbot with Milvus")
