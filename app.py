@@ -1,4 +1,12 @@
 import streamlit as st
+import time
+from twelvelabs import TwelveLabs
+import torch
+from torchvision import models, transforms
+from PIL import Image
+import pandas as pd
+from urllib.parse import urlparse
+import uuid
 from dotenv import load_dotenv
 import os
 from pymilvus import connections, Collection, utility
@@ -10,6 +18,7 @@ COLLECTION_NAME = os.getenv('COLLECTION_NAME')
 URL = os.getenv('URL')
 TOKEN = os.getenv('TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+TWELVELABS_API_KEY = os.getenv('TWELVELABS_API_KEY')
 
 # Initialize OpenAI client and Milvus connection
 openai_client = OpenAI()
@@ -18,13 +27,20 @@ collection = Collection(COLLECTION_NAME)
 collection.load()
 
 def emb_text(text):
-    """Generate embeddings using OpenAI's API"""
-    result = openai_client.embeddings.create(
-        input=text,
-        model="text-embedding-3-small",
-        dimensions=1024
-    )
-    return result.data[0].embedding
+    """Generate embeddings using TwelveLabs API"""
+    try:
+        twelvelabs_client = TwelveLabs(api_key=TWELVELABS_API_KEY)
+        
+        # Create embedding for the text
+        embedding = twelvelabs_client.embed.create(
+            engine_name="Marengo-retrieval-2.6",
+            text=text
+        ).text_embedding
+        
+        return embedding.segments[0].embeddings_float
+    except Exception as e:
+        st.error(f"Embedding Error: {str(e)}")
+        raise e
 
 def get_rag_response(question):
     """Get RAG response with metadata"""
@@ -40,7 +56,7 @@ def get_rag_response(question):
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
-            limit=2,
+            limit=3,
             output_fields=['metadata']
         )
 
