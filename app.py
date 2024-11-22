@@ -77,7 +77,7 @@ def emb_text(text):
     return (
         openai_client.embeddings.create(
             input=text,
-            model="text-embedding-ada-002"  # Changed to ada-002 for 1024 dimensions
+            model="text-embedding-2-v2"  # This model produces 1024-dimensional embeddings
         )
         .data[0]
         .embedding
