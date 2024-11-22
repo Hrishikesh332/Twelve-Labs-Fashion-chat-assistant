@@ -293,8 +293,8 @@ def main():
 
         st.markdown("""
         <div style="padding: 1.5rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h2 style="color: #FF4B6B;">Your Style Guide</h2>
-            <p style="color: #666;">I can help you with:</p>
+            <h2 style="color: #FF4B6B;">Your Fashion Style Guide</h2>
+            <p style="color: #666;">How can I help you with, There are various things I can help - </p>
             <ul style="color: #333;">
                 <li>Finding perfect outfits</li>
                 <li>Style recommendations</li>
