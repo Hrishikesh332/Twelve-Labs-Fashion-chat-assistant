@@ -74,14 +74,12 @@ collection.load()
 
 # Function to generate embeddings using ada-002 (1024 dimensions)
 def emb_text(text):
-    return (
-        openai_client.embeddings.create(
-            input=text,
-            model="text-embedding-2-v2"  # This model produces 1024-dimensional embeddings
-        )
-        .data[0]
-        .embedding
+    result = openai_client.embeddings.create(
+        input=text,
+        model="text-embedding-3-small",  # Using text-embedding-3-small
+        dimensions=1024  # Explicitly setting dimensions to 1024
     )
+    return result.data[0].embedding
 
 # Function to get RAG response
 def get_rag_response(question):
