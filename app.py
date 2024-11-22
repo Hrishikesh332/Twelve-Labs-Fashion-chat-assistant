@@ -133,7 +133,7 @@ def get_rag_response(question):
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
-            limit=3,
+            limit=2,
             output_fields=['metadata']
         )
 
