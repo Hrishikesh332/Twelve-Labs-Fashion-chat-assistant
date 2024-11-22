@@ -86,6 +86,15 @@ def emb_text(text):
 
 # Function to get RAG response
 def get_rag_response(question):
+    # Generate embedding for the question
+    question_embedding = emb_text(question)
+    
+    # Search parameters
+    search_params = {
+        "metric_type": "COSINE",
+        "params": {"nprobe": 10},
+    }
+    
     # Search in Milvus collection
     results = collection.search(
         data=[question_embedding],  # Search vector
@@ -106,10 +115,9 @@ def get_rag_response(question):
         [line_with_distance[0] for line_with_distance in retrieved_lines_with_distances]
     )
 
-
     # Define prompts
     SYSTEM_PROMPT = """
-    You are an AI assistant. You are able to find answers to the questions from the contextual passage snippets provided.
+    You are a Fashion AI Assistant
     """
 
     USER_PROMPT = f"""
@@ -134,7 +142,7 @@ def get_rag_response(question):
     return response.choices[0].message.content
 
 # Streamlit UI
-st.title("📚 RAG Chatbot")
+st.title("📚 RAG Chatbot with Milvus")
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -146,7 +154,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Chat input
-if prompt := st.chat_input("Ask a question..."):
+if prompt := st.chat_input("Ask a question about Milvus..."):
     # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -167,5 +175,5 @@ if prompt := st.chat_input("Ask a question..."):
 with st.sidebar:
     st.title("About")
     st.markdown("""
-    Ask questions about Fashion Related to get informed responses
+    This chatbot uses
     """)
