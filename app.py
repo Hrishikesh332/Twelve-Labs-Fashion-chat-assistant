@@ -119,10 +119,10 @@ def emb_text(text):
         st.error(f"Embedding Error: {str(e)}")
         raise e
 
-# Updated similarity score calculation in get_rag_response function
+
 def get_rag_response(question):
     try:
-        # Search logic remains the same
+
         question_embedding = emb_text(question)
         search_params = {
             "metric_type": "COSINE",
@@ -143,11 +143,9 @@ def get_rag_response(question):
             try:
                 metadata = hit.entity.metadata
                 if metadata:
-                    # Fix similarity calculation
-                    # For COSINE similarity, the score is between -1 and 1
-                    # Convert to percentage (0-100)
+
                     similarity = round((hit.score + 1) * 50, 2)  # Convert from [-1,1] to [0,100]
-                    # Ensure similarity is within bounds
+
                     similarity = max(0, min(100, similarity))
                     
                     retrieved_docs.append({
@@ -160,8 +158,8 @@ def get_rag_response(question):
                         "raw_score": hit.score  # Add raw score for debugging
                     })
                     
-                    # Debug information
-                    st.write(f"Debug - Raw Score: {hit.score}, Calculated Similarity: {similarity}%")
+                    # # Debug information
+                    # st.write(f"Debug - Raw Score: {hit.score}, Calculated Similarity: {similarity}%")
                     
             except Exception as e:
                 st.error(f"Error processing hit: {str(e)}")
@@ -173,7 +171,6 @@ def get_rag_response(question):
                 "metadata": None
             }
 
-        # Rest of the function remains the same
         context = "\n\n".join([f"Title: {doc['title']}\nDescription: {doc['description']}" for doc in retrieved_docs])
         messages = [
             {
@@ -208,9 +205,8 @@ def get_rag_response(question):
             "metadata": None
         }
 
-# Updated product details rendering function to show debug info
+
 def render_product_details(source):
-    """Enhanced product details rendering with debug info"""
     with st.container():
         col1, col2 = st.columns([2, 1])
         
@@ -248,7 +244,7 @@ def main():
     # Header
     st.markdown("""
         <div style="text-align: center; padding: 2rem 0;">
-            <h1 style="color: #FF4B6B; font-size: 3em; font-weight: 800;">👗 Fashion AI Assistant</h1>
+            <h1 style="color: #FF4B6B; font-size: 3em; font-weight: 800;">🤵‍♂️ Fashion AI Assistant</h1>
             <p style="color: #666; font-size: 1.2em;">Your personal style advisor powered by AI</p>
         </div>
     """, unsafe_allow_html=True)
@@ -280,7 +276,7 @@ def main():
             st.markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        with st.chat_message("assistant", avatar="👗"):
+        with st.chat_message("assistant", avatar="🤵‍♂️"):
             with st.spinner("Finding perfect matches..."):
                 response_data = get_rag_response(prompt)
                 st.markdown(response_data["response"])
@@ -292,9 +288,9 @@ def main():
         
         st.session_state.messages.append({"role": "assistant", "content": response_data})
 
-    # Sidebar
+
     with st.sidebar:
-        st.image("https://storage.googleapis.com/your-fashion-logo.png", use_column_width=True)
+
         st.markdown("""
         <div style="padding: 1.5rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <h2 style="color: #FF4B6B;">Your Style Guide</h2>
