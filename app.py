@@ -39,23 +39,23 @@ connections.connect(
     token=TOKEN
 )
 
-# Define fields for schema
-fields = [
-    FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=False),
-    FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=1024),
-]
-
-# Create schema with dynamic fields for metadata
-schema = CollectionSchema(
-    fields=fields,
-    enable_dynamic_field=True
-)
-
 # Check if collection exists
 if utility.has_collection(COLLECTION_NAME):
     collection = Collection(COLLECTION_NAME)
     print(f"Using existing collection: {COLLECTION_NAME}")
 else:
+    # Define fields for schema
+    fields = [
+        FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=False),
+        FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=1024),
+    ]
+    
+    # Create schema with dynamic fields for metadata
+    schema = CollectionSchema(
+        fields=fields,
+        enable_dynamic_field=True
+    )
+    
     collection = Collection(COLLECTION_NAME, schema)
     print(f"Created new collection: {COLLECTION_NAME}")
     
@@ -71,14 +71,13 @@ else:
         print("Created index for the new collection")
 
 collection.load()
-milvus_client = collection
 
-# Function to generate embeddings
+# Function to generate embeddings using ada-002 (1024 dimensions)
 def emb_text(text):
     return (
         openai_client.embeddings.create(
             input=text,
-            model="text-embedding-3-small"
+            model="text-embedding-ada-002"  # Changed to ada-002 for 1024 dimensions
         )
         .data[0]
         .embedding
@@ -117,7 +116,7 @@ def get_rag_response(question):
 
     # Define prompts
     SYSTEM_PROMPT = """
-    You are a Fashion AI Assistant
+    You are an AI assistant. You are able to find answers to the questions from the contextual passage snippets provided.
     """
 
     USER_PROMPT = f"""
@@ -175,5 +174,10 @@ if prompt := st.chat_input("Ask a question about Milvus..."):
 with st.sidebar:
     st.title("About")
     st.markdown("""
-    This chatbot uses
+    This chatbot uses:
+    - Milvus for vector storage and similarity search
+    - OpenAI for embeddings and text generation
+    - RAG (Retrieval-Augmented Generation) architecture
+    
+    Ask questions about Milvus to get informed responses based on the documentation!
     """)
