@@ -40,34 +40,55 @@ def get_rag_response(question):
             "params": {"nprobe": 10},
         }
         
-        # Search in Milvus with dynamic field
+        # First, let's try to query and see what fields are available
         results = collection.search(
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
             limit=3,
-            output_fields=['$meta']  # Query dynamic field
+            output_fields=['*']  # Try to get all fields
         )
+
+        # Debug: Print first result structure
+        if results and len(results) > 0 and len(results[0]) > 0:
+            first_hit = results[0][0]
+            st.write("First hit structure:", first_hit.to_dict())
+            st.write("Entity fields:", vars(first_hit.entity))
 
         # Extract documents and metadata
         retrieved_docs = []
         for hit in results[0]:
             try:
-                # Access the dynamic field metadata
-                meta = hit.entity.get('$meta')
-                if meta:
+                # Try different ways to access the text content
+                doc_dict = hit.to_dict()
+                entity_vars = vars(hit.entity)
+                
+                content = None
+                # Try different possible locations of the text
+                if hasattr(hit.entity, 'text_field'):
+                    content = hit.entity.text_field
+                elif hasattr(hit.entity, 'text'):
+                    content = hit.entity.text
+                elif '$meta' in entity_vars and 'text' in entity_vars['$meta']:
+                    content = entity_vars['$meta']['text']
+                elif 'text' in doc_dict:
+                    content = doc_dict['text']
+                
+                if content:
                     similarity = round((1 - hit.distance) * 100, 2)
                     retrieved_docs.append({
-                        "content": meta.get('text', ''),  # Assuming text is stored in meta
+                        "content": content,
                         "similarity": similarity
                     })
+                else:
+                    st.write("No content found in hit:", doc_dict)
             except Exception as e:
                 st.error(f"Error processing hit: {str(e)}")
                 continue
 
         if not retrieved_docs:
             return {
-                "response": "I couldn't find any relevant information in my knowledge base. Could you please rephrase your question?",
+                "response": "Unable to retrieve information. Please verify the data structure in Milvus.",
                 "metadata": None
             }
 
@@ -101,12 +122,13 @@ def get_rag_response(question):
     
     except Exception as e:
         st.error(f"Debug - Error details: {str(e)}")
-        # Print more detailed information about the hit structure
         st.write("Collection Schema:", collection.schema)
         return {
-            "response": "I'm having trouble accessing the knowledge base. Please try again in a moment.",
+            "response": "Error accessing the knowledge base. Please check the debug information.",
             "metadata": None
         }
+
+
 
 # Streamlit UI
 st.title("📚 Milvus RAG Chatbot")
