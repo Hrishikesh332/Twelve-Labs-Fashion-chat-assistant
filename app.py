@@ -93,7 +93,7 @@ def get_rag_response(question):
         }
         
         # Search in Milvus collection
-        results = collection.search(
+        search_results = collection.search(
             data=[question_embedding],  # Search vector
             anns_field="vector",       # Field to search
             param=search_params,       # Search parameters
@@ -101,17 +101,27 @@ def get_rag_response(question):
             output_fields=["text"]     # Fields to return
         )
 
-        # Debug print
-        st.write("Search Results:", results)  # This will help us see the structure of results
-
-        # Extract retrieved documents - modified to handle Milvus response format
+        # Convert SequenceIterator to list to make it iterable
+        results = list(search_results)
+        
+        # Extract retrieved documents
         retrieved_documents = []
         for hit in results[0]:
-            text = hit.entity.get('text', '')
-            distance = hit.score
-            if text:  # Only add if text exists
-                retrieved_documents.append((text, distance))
+            try:
+                text = str(hit.get('text', ''))  # Convert to string and provide default value
+                distance = float(hit.get('distance', 0.0))  # Convert to float and provide default
+                if text:  # Only add if text exists
+                    retrieved_documents.append((text, distance))
+            except AttributeError:
+                # If hit is not a dictionary, try accessing as object
+                text = getattr(hit.entity, 'text', '')
+                distance = getattr(hit, 'distance', 0.0)
+                if text:
+                    retrieved_documents.append((text, distance))
 
+        # Debug information
+        st.write("Number of results found:", len(retrieved_documents))
+        
         # If no results found
         if not retrieved_documents:
             return "I couldn't find any relevant information to answer your question. Please try asking something else."
@@ -145,8 +155,10 @@ def get_rag_response(question):
 
         return response.choices[0].message.content
     except Exception as e:
+        import traceback
         st.error(f"An error occurred: {str(e)}")
-        return f"I encountered an error while processing your question: {str(e)}"
+        st.error(f"Traceback: {traceback.format_exc()}")
+        return f"I encountered an error while processing your question. Please try again."
 
 # Streamlit UI
 st.title("📚 RAG Chatbot with Milvus")
