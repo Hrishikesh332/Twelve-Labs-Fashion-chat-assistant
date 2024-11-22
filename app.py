@@ -93,7 +93,7 @@ def get_rag_response(question):
         }
         
         # Search in Milvus collection
-        search_results = collection.search(
+        results = collection.search(
             data=[question_embedding],  # Search vector
             anns_field="vector",       # Field to search
             param=search_params,       # Search parameters
@@ -101,27 +101,13 @@ def get_rag_response(question):
             output_fields=["text"]     # Fields to return
         )
 
-        # Convert SequenceIterator to list to make it iterable
-        results = list(search_results)
-        
         # Extract retrieved documents
         retrieved_documents = []
-        for hit in results[0]:
-            try:
-                text = str(hit.get('text', ''))  # Convert to string and provide default value
-                distance = float(hit.get('distance', 0.0))  # Convert to float and provide default
-                if text:  # Only add if text exists
-                    retrieved_documents.append((text, distance))
-            except AttributeError:
-                # If hit is not a dictionary, try accessing as object
-                text = getattr(hit.entity, 'text', '')
-                distance = getattr(hit, 'distance', 0.0)
-                if text:
-                    retrieved_documents.append((text, distance))
+        for hit in results[0]:  # results[0] contains hits for the first query
+            text = hit.entity.text  # Directly access the text field
+            distance = hit.distance  # Directly access the distance
+            retrieved_documents.append((text, distance))
 
-        # Debug information
-        st.write("Number of results found:", len(retrieved_documents))
-        
         # If no results found
         if not retrieved_documents:
             return "I couldn't find any relevant information to answer your question. Please try asking something else."
@@ -155,10 +141,15 @@ def get_rag_response(question):
 
         return response.choices[0].message.content
     except Exception as e:
-        import traceback
-        st.error(f"An error occurred: {str(e)}")
-        st.error(f"Traceback: {traceback.format_exc()}")
-        return f"I encountered an error while processing your question. Please try again."
+        # For debugging, print the full error details
+        st.error(str(e))
+        # Try to provide more information about what went wrong
+        if "entity" in str(e):
+            return "It seems there might be an issue with the data format in the database. Please check if the collection has the correct fields."
+        elif "distance" in str(e):
+            return "There was an issue retrieving search results. Please try again."
+        else:
+            return "I encountered an error while processing your question. Please try a different question."
 
 # Streamlit UI
 st.title("📚 RAG Chatbot with Milvus")
