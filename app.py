@@ -86,6 +86,10 @@ def get_rag_response(question):
         # Generate embedding for the question
         question_embedding = emb_text(question)
         
+        # Print collection schema for debugging
+        st.write("Collection Schema:", collection.schema)
+        st.write("Collection Description:", collection.description)
+        
         # Search parameters
         search_params = {
             "metric_type": "COSINE",
@@ -98,36 +102,62 @@ def get_rag_response(question):
             anns_field="vector",       # Field to search
             param=search_params,       # Search parameters
             limit=3,                   # Top k
-            output_fields=["text"]     # Fields to return
+            output_fields=["*"]     # Get all available fields
         )
+
+        # Debug: Print first hit structure
+        if results and len(results) > 0 and len(results[0]) > 0:
+            st.write("First hit structure:", dir(results[0][0]))
+            st.write("First hit entity:", dir(results[0][0].entity))
 
         # Extract retrieved documents
         retrieved_documents = []
-        for hit in results[0]:  # results[0] contains hits for the first query
-            text = hit.entity.text  # Directly access the text field
-            distance = hit.distance  # Directly access the distance
-            retrieved_documents.append((text, distance))
+        for hit in results[0]:
+            # Get all available fields from the entity
+            entity_dict = {}
+            for field_name in dir(hit.entity):
+                if not field_name.startswith('_'):  # Skip private attributes
+                    try:
+                        value = getattr(hit.entity, field_name)
+                        entity_dict[field_name] = value
+                    except Exception as e:
+                        continue
+            
+            st.write("Entity fields:", entity_dict)
+            
+            # Try to get the text content from available fields
+            text_content = None
+            if hasattr(hit.entity, 'text'):
+                text_content = hit.entity.text
+            elif hasattr(hit.entity, 'content'):
+                text_content = hit.entity.content
+            elif hasattr(hit.entity, 'data'):
+                text_content = hit.entity.data
+                
+            if text_content:
+                retrieved_documents.append((text_content, hit.distance))
 
         # If no results found
         if not retrieved_documents:
-            return "I couldn't find any relevant information to answer your question. Please try asking something else."
+            return "I couldn't find any relevant information to answer your question. Could you please rephrase it?"
 
         # Convert retrieved documents to context string
         context = "\n".join([doc[0] for doc in retrieved_documents])
 
         # Define prompts
         SYSTEM_PROMPT = """
-        You are an AI assistant. You are able to find answers to the questions from the contextual passage snippets provided.
+        You are an AI assistant. You will use the provided context to answer questions about Milvus.
+        If the context doesn't contain relevant information, say so clearly.
         """
 
         USER_PROMPT = f"""
-        Use the following pieces of information enclosed in <context> tags to provide an answer to the question enclosed in <question> tags.
-        <context>
+        Use the following context to answer the question:
+        
+        Context:
         {context}
-        </context>
-        <question>
+        
+        Question:
         {question}
-        </question>
         """
 
         # Generate response using OpenAI
@@ -141,15 +171,16 @@ def get_rag_response(question):
 
         return response.choices[0].message.content
     except Exception as e:
-        # For debugging, print the full error details
-        st.error(str(e))
-        # Try to provide more information about what went wrong
-        if "entity" in str(e):
-            return "It seems there might be an issue with the data format in the database. Please check if the collection has the correct fields."
-        elif "distance" in str(e):
-            return "There was an issue retrieving search results. Please try again."
-        else:
-            return "I encountered an error while processing your question. Please try a different question."
+        st.error(f"Error details: {str(e)}")
+        return "I'm having trouble accessing the knowledge base. Could you share what fields are available in your Milvus collection?"
+
+# Display collection information at startup
+try:
+    st.sidebar.write("Collection Information:")
+    st.sidebar.write("Schema:", collection.schema)
+    st.sidebar.write("Description:", collection.description)
+except Exception as e:
+    st.sidebar.write("Could not fetch collection info:", str(e))
 
 # Streamlit UI
 st.title("📚 RAG Chatbot with Milvus")
