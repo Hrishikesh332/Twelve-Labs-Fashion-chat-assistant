@@ -46,30 +46,24 @@ def get_rag_response(question):
             anns_field="vector",
             param=search_params,
             limit=3,
-            output_fields=["text"]  # Changed to "text" field
+            output_fields=['$meta']  # Query dynamic field
         )
 
         # Extract documents and metadata
         retrieved_docs = []
         for hit in results[0]:
-            # Print the available fields for debugging
-            st.write("Available fields in hit:", dir(hit.entity))
-            
-            # Try to get the document text
-            doc_text = None
-            if hasattr(hit.entity, 'text'):
-                doc_text = hit.entity.text
-            elif hasattr(hit.entity, '$doc'):
-                doc_text = hit.entity['$doc']
-            elif hasattr(hit.entity, 'document'):
-                doc_text = hit.entity.document
-            
-            if doc_text:
-                similarity = round((1 - hit.distance) * 100, 2)
-                retrieved_docs.append({
-                    "content": doc_text,
-                    "similarity": similarity
-                })
+            try:
+                # Access the dynamic field metadata
+                meta = hit.entity.get('$meta')
+                if meta:
+                    similarity = round((1 - hit.distance) * 100, 2)
+                    retrieved_docs.append({
+                        "content": meta.get('text', ''),  # Assuming text is stored in meta
+                        "similarity": similarity
+                    })
+            except Exception as e:
+                st.error(f"Error processing hit: {str(e)}")
+                continue
 
         if not retrieved_docs:
             return {
@@ -107,7 +101,7 @@ def get_rag_response(question):
     
     except Exception as e:
         st.error(f"Debug - Error details: {str(e)}")
-        # Print collection schema for debugging
+        # Print more detailed information about the hit structure
         st.write("Collection Schema:", collection.schema)
         return {
             "response": "I'm having trouble accessing the knowledge base. Please try again in a moment.",
@@ -177,6 +171,10 @@ with st.sidebar:
     Ask questions about Milvus documentation!
     """)
 
-    # Debug info in sidebar
-    with st.expander("Debug Info"):
-        st.write("Collection Schema:", collection.schema)
+    # Show collection stats
+    with st.expander("Collection Info"):
+        st.write("Schema:", collection.schema)
+        try:
+            st.write("Size:", collection.num_entities)
+        except:
+            st.write("Size: Unknown")
