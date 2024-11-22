@@ -11,10 +11,8 @@ URL = os.getenv('URL')
 TOKEN = os.getenv('TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-# Initialize OpenAI client
+# Initialize OpenAI client and Milvus connection
 openai_client = OpenAI()
-
-# Milvus Connection
 connections.connect(uri=URL, token=TOKEN)
 collection = Collection(COLLECTION_NAME)
 collection.load()
@@ -31,75 +29,58 @@ def emb_text(text):
 def get_rag_response(question):
     """Get RAG response with metadata"""
     try:
-        # Generate embedding
+        # Generate embedding and search
         question_embedding = emb_text(question)
-        
-        # Search parameters
         search_params = {
             "metric_type": "COSINE",
             "params": {"nprobe": 10},
         }
         
-        # First, let's try to query and see what fields are available
         results = collection.search(
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
             limit=3,
-            output_fields=['*']  # Try to get all fields
+            output_fields=['metadata']
         )
-
-        # Debug: Print first result structure
-        if results and len(results) > 0 and len(results[0]) > 0:
-            first_hit = results[0][0]
-            st.write("First hit structure:", first_hit.to_dict())
-            st.write("Entity fields:", vars(first_hit.entity))
 
         # Extract documents and metadata
         retrieved_docs = []
         for hit in results[0]:
             try:
-                # Try different ways to access the text content
-                doc_dict = hit.to_dict()
-                entity_vars = vars(hit.entity)
-                
-                content = None
-                # Try different possible locations of the text
-                if hasattr(hit.entity, 'text_field'):
-                    content = hit.entity.text_field
-                elif hasattr(hit.entity, 'text'):
-                    content = hit.entity.text
-                elif '$meta' in entity_vars and 'text' in entity_vars['$meta']:
-                    content = entity_vars['$meta']['text']
-                elif 'text' in doc_dict:
-                    content = doc_dict['text']
-                
-                if content:
+                metadata = hit.entity.metadata
+                if metadata:
                     similarity = round((1 - hit.distance) * 100, 2)
                     retrieved_docs.append({
-                        "content": content,
+                        "title": metadata.get("title", "Untitled"),
+                        "description": metadata.get("description", "No description available"),
+                        "product_id": metadata.get("product_id", ""),
+                        "video_url": metadata.get("video_url", ""),
+                        "link": metadata.get("link", ""),
                         "similarity": similarity
                     })
-                else:
-                    st.write("No content found in hit:", doc_dict)
             except Exception as e:
-                st.error(f"Error processing hit: {str(e)}")
                 continue
 
         if not retrieved_docs:
             return {
-                "response": "Unable to retrieve information. Please verify the data structure in Milvus.",
+                "response": "I couldn't find any relevant information. Please try another question.",
                 "metadata": None
             }
 
-        # Format context
-        context = "\n\n".join([f"{i+1}. {doc['content']}" for i, doc in enumerate(retrieved_docs)])
+        # Create context from relevant fields
+        context_parts = []
+        for doc in retrieved_docs:
+            context_parts.append(f"Title: {doc['title']}\nDescription: {doc['description']}")
+        context = "\n\n".join(context_parts)
 
         # Generate response using ChatGPT
         messages = [
             {
                 "role": "system",
-                "content": "You are a helpful AI assistant that provides clear, accurate answers about Milvus based on the given context. Use markdown formatting for better readability."
+                "content": """You are a helpful AI assistant for an e-commerce platform. 
+                Provide clear, concise answers about products based on the context. 
+                Include relevant product details in a natural way."""
             },
             {
                 "role": "user",
@@ -121,17 +102,14 @@ def get_rag_response(question):
         }
     
     except Exception as e:
-        st.error(f"Debug - Error details: {str(e)}")
-        st.write("Collection Schema:", collection.schema)
+        st.error(f"Error: {str(e)}")
         return {
-            "response": "Error accessing the knowledge base. Please check the debug information.",
+            "response": "I encountered an error while processing your request.",
             "metadata": None
         }
 
-
-
 # Streamlit UI
-st.title("📚 Milvus RAG Chatbot")
+st.title("🛍️ E-commerce Product Assistant")
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -141,21 +119,29 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         if message["role"] == "assistant":
+            # Display main response
             st.markdown(message["content"]["response"])
+            
+            # Display metadata in expander if available
             if message["content"]["metadata"]:
-                with st.expander("View Sources"):
+                with st.expander("View Product Details"):
                     for i, source in enumerate(message["content"]["metadata"]["sources"], 1):
                         st.markdown(f"""
-                        **Source {i}** (Similarity: {source['similarity']}%)
-                        ```
-                        {source['content']}
-                        ```
+                        ### {source['title']}
+                        - **Similarity Score:** {source['similarity']}%
+                        - **Description:** {source['description']}
+                        - **Product ID:** {source['product_id']}
+                        
+                        **Links:**
+                        - [Product Page]({source['link']})
+                        - [Video]({source['video_url']})
+                        ---
                         """)
         else:
             st.markdown(message["content"])
 
 # Chat input
-if prompt := st.chat_input("Ask a question about Milvus..."):
+if prompt := st.chat_input("Ask about our products..."):
     # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -163,40 +149,38 @@ if prompt := st.chat_input("Ask a question about Milvus..."):
 
     # Display assistant response
     with st.chat_message("assistant"):
-        with st.spinner("Searching knowledge base..."):
+        with st.spinner("Searching products..."):
             response_data = get_rag_response(prompt)
             st.markdown(response_data["response"])
             
             if response_data["metadata"]:
-                with st.expander("View Sources"):
+                with st.expander("View Product Details"):
                     for i, source in enumerate(response_data["metadata"]["sources"], 1):
                         st.markdown(f"""
-                        **Source {i}** (Similarity: {source['similarity']}%)
-                        ```
-                        {source['content']}
-                        ```
+                        ### {source['title']}
+                        - **Similarity Score:** {source['similarity']}%
+                        - **Description:** {source['description']}
+                        - **Product ID:** {source['product_id']}
+                        
+                        **Links:**
+                        - [Product Page]({source['link']})
+                        - [Video]({source['video_url']})
+                        ---
                         """)
     
     st.session_state.messages.append({"role": "assistant", "content": response_data})
 
-# Sidebar info
+# Sidebar
 with st.sidebar:
     st.title("About")
     st.markdown("""
-    ### 🤖 AI-Powered Milvus Chat
+    ### 🤖 AI Shopping Assistant
     
-    This chatbot uses:
-    - Semantic search with Milvus
-    - OpenAI embeddings & chat
-    - Source verification
+    This assistant helps you find products by:
+    - Understanding natural language queries
+    - Searching through product catalog
+    - Providing detailed product information
+    - Showing related videos and links
     
-    Ask questions about Milvus documentation!
+    Ask about any product to get started!
     """)
-
-    # Show collection stats
-    with st.expander("Collection Info"):
-        st.write("Schema:", collection.schema)
-        try:
-            st.write("Size:", collection.num_entities)
-        except:
-            st.write("Size: Unknown")
