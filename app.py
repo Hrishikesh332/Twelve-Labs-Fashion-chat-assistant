@@ -119,43 +119,10 @@ def emb_text(text):
         st.error(f"Embedding Error: {str(e)}")
         raise e
 
-def render_product_details(source):
-    """Enhanced product details rendering"""
-    with st.container():
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.markdown(f"""
-            <div class="product-card">
-                <h3 style="color: #FF4B6B;">{source['title']}</h3>
-                <div style="margin: 1rem 0;">
-                    <div style="background: linear-gradient(90deg, #FF4B6B {source['similarity']}%, #f1f1f1 {source['similarity']}%); 
-                         height: 6px; border-radius: 3px; margin-bottom: 0.5rem;"></div>
-                    <p style="color: #666;">Similarity Score: {source['similarity']}%</p>
-                </div>
-                <p style="color: #333; font-size: 1.1em;">{source['description']}</p>
-                <p style="color: #666;">Product ID: {source['product_id']}</p>
-                <a href="{source['link']}" target="_blank" style="
-                    display: inline-block;
-                    background: #FF4B6B;
-                    color: white;
-                    padding: 0.5rem 1.5rem;
-                    border-radius: 25px;
-                    text-decoration: none;
-                    margin-top: 1rem;
-                    transition: all 0.3s ease;
-                ">View on Store</a>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            if source['video_url']:
-                st.video(source['video_url'])
-
+# Updated similarity score calculation in get_rag_response function
 def get_rag_response(question):
-    """RAG response function with enhanced error handling"""
     try:
-        # Search logic
+        # Search logic remains the same
         question_embedding = emb_text(question)
         search_params = {
             "metric_type": "COSINE",
@@ -170,22 +137,34 @@ def get_rag_response(question):
             output_fields=['metadata']
         )
 
-        # Process results
+        # Process results with corrected similarity calculation
         retrieved_docs = []
         for hit in results[0]:
             try:
                 metadata = hit.entity.metadata
                 if metadata:
-                    similarity = round((1 - hit.distance) * 100, 2)
+                    # Fix similarity calculation
+                    # For COSINE similarity, the score is between -1 and 1
+                    # Convert to percentage (0-100)
+                    similarity = round((hit.score + 1) * 50, 2)  # Convert from [-1,1] to [0,100]
+                    # Ensure similarity is within bounds
+                    similarity = max(0, min(100, similarity))
+                    
                     retrieved_docs.append({
                         "title": metadata.get("title", "Untitled"),
                         "description": metadata.get("description", "No description available"),
                         "product_id": metadata.get("product_id", ""),
                         "video_url": metadata.get("video_url", ""),
                         "link": metadata.get("link", ""),
-                        "similarity": similarity
+                        "similarity": similarity,
+                        "raw_score": hit.score  # Add raw score for debugging
                     })
+                    
+                    # Debug information
+                    st.write(f"Debug - Raw Score: {hit.score}, Calculated Similarity: {similarity}%")
+                    
             except Exception as e:
+                st.error(f"Error processing hit: {str(e)}")
                 continue
 
         if not retrieved_docs:
@@ -194,10 +173,8 @@ def get_rag_response(question):
                 "metadata": None
             }
 
-        # Create context
+        # Rest of the function remains the same
         context = "\n\n".join([f"Title: {doc['title']}\nDescription: {doc['description']}" for doc in retrieved_docs])
-
-        # Generate response
         messages = [
             {
                 "role": "system",
@@ -223,12 +200,48 @@ def get_rag_response(question):
                 "total_sources": len(retrieved_docs)
             }
         }
+    
     except Exception as e:
         st.error(f"Error: {str(e)}")
         return {
             "response": "I encountered an error while processing your request.",
             "metadata": None
         }
+
+# Updated product details rendering function to show debug info
+def render_product_details(source):
+    """Enhanced product details rendering with debug info"""
+    with st.container():
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.markdown(f"""
+            <div class="product-card">
+                <h3 style="color: #FF4B6B;">{source['title']}</h3>
+                <div style="margin: 1rem 0;">
+                    <div style="background: linear-gradient(90deg, #FF4B6B {source['similarity']}%, #f1f1f1 {source['similarity']}%); 
+                         height: 6px; border-radius: 3px; margin-bottom: 0.5rem;"></div>
+                    <p style="color: #666;">Similarity Score: {source['similarity']}%</p>
+                    <p style="color: #666; font-size: 0.8em;">Raw Score: {source.get('raw_score', 'N/A')}</p>
+                </div>
+                <p style="color: #333; font-size: 1.1em;">{source['description']}</p>
+                <p style="color: #666;">Product ID: {source['product_id']}</p>
+                <a href="{source['link']}" target="_blank" style="
+                    display: inline-block;
+                    background: #FF4B6B;
+                    color: white;
+                    padding: 0.5rem 1.5rem;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    margin-top: 1rem;
+                    transition: all 0.3s ease;
+                ">View on Store</a>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            if source['video_url']:
+                st.video(source['video_url'])
 
 # Main UI
 def main():
