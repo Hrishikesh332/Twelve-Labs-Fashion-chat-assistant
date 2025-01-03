@@ -111,7 +111,7 @@ def emb_text(text):
     try:
         twelvelabs_client = TwelveLabs(api_key=TWELVELABS_API_KEY)
         embedding = twelvelabs_client.embed.create(
-            engine_name="Marengo-retrieval-2.6",
+            model_name="Marengo-retrieval-2.7",
             text=text
         ).text_embedding
         return embedding.segments[0].embeddings_float
