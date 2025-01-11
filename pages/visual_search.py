@@ -11,6 +11,7 @@ def main():
             font-weight: bold;
             color: #FF4B6B;
             margin-bottom: 1rem;
+            text-align: center;
         }
         .nav-button {
             display: inline-block;
