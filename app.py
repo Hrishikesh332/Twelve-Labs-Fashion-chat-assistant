@@ -43,7 +43,7 @@ st.markdown("""
     }
     
     .nav-button {
-        background-color: #81E831 !important;
+        background-color: #4d7c0f !important;
         color: white !important;
         border-radius: 6px !important;
         border: none !important;
@@ -69,7 +69,7 @@ st.markdown("""
     }
 
     .stButton button {
-        background-color: #81E831 !important;
+        background-color: #4d7c0f !important;
         color: white !important;
         border: none !important;
         transition: all 0.2s ease !important;
@@ -117,17 +117,17 @@ def render_product_details(source):
         with col1:
             st.markdown(f"""
             <div class="product-card">
-                <h3 style="color: #81E831;">{source['title']}</h3>
+                <h3 style="color: #4d7c0f;">{source['title']}</h3>
                 <div style="margin: 1rem 0;">
-                    <div style="background: linear-gradient(90deg, #81E831 {source['similarity']}%, #f0fdf4 {source['similarity']}%); 
+                    <div style="background: linear-gradient(90deg, #4d7c0f {source['similarity']}%, #f0fdf4 {source['similarity']}%); 
                          height: 6px; border-radius: 3px; margin-bottom: 0.5rem;"></div>
                     <p style="color: #166534;">Similarity Score: {source['similarity']}%</p>
                 </div>
-                <p style="color: #81E831; font-size: 1.1em;">{source['description']}</p>
+                <p style="color: #4d7c0f; font-size: 1.1em;">{source['description']}</p>
                 <p style="color: #166534;">Product ID: {source['product_id']}</p>
                 <a href="{source['link']}" target="_blank" style="
                     display: inline-block;
-                    background: #81E831;
+                    background: #4d7c0f;
                     color: white;
                     padding: 0.5rem 1.5rem;
                     border-radius: 25px;
@@ -146,7 +146,7 @@ def render_product_details(source):
 def chat_page():
     st.markdown("""
         <div style="text-align: center; padding: 2rem 0;">
-            <h1 style="color: #81E831; font-size: 3em; font-weight: 800;">🤵‍♂️ Fashion AI Assistant</h1>
+            <h1 style="color: #4d7c0f; font-size: 3em; font-weight: 800;">🤵‍♂️ Fashion AI Assistant</h1>
             <p style="color: #84cc16; font-size: 1.2em;">Your personal style advisor powered by AI</p>
         </div>
     """, unsafe_allow_html=True)
@@ -200,7 +200,7 @@ def chat_page():
     with st.sidebar:
         st.markdown("""
         <div style="padding: 1.5rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(74, 222, 128, 0.15); border: 1px solid rgba(74, 222, 128, 0.1);">
-            <h2 style="color: #81E831;">Your Fashion Style Guide</h2>
+            <h2 style="color: #4d7c0f;">Your Fashion Style Guide</h2>
             <p style="color: #84cc16;">How can I help you with, There are various things I can help - </p>
             <ul style="color: #84cc16;">
                 <li>Finding perfect outfits</li>
