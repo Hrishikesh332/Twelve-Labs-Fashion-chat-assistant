@@ -47,6 +47,13 @@ def main():
     st.markdown(
         """
         <style>
+        .header {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FF4B6B;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
         .nav-button {
             display: inline-block;
             padding: 0.5rem 1rem;
@@ -60,6 +67,7 @@ def main():
         """,
         unsafe_allow_html=True
     )
+st.markdown('<div class="header">Add Product Data</div>', unsafe_allow_html=True)
     st.title("Add Product Data")
     add_product_data()
 
