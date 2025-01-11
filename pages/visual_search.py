@@ -2,11 +2,33 @@ import streamlit as st
 from utils import search_similar_videos, create_video_embed
 
 def main():
-    st.title("Visual Search")
+    st.set_page_config(page_title="Visual Search", page_icon=":mag:")
+    st.markdown(
+        """
+        <style>
+        .header {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FF4B6B;
+            margin-bottom: 1rem;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #FF4B6B;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown('<div class="header">Visual Search</div>', unsafe_allow_html=True)
     st.subheader("Search Similar Product Clips")
     
-    if st.button("Back to Chat", type="secondary"):
-        st.switch_page("app.py")
+    st.markdown('<a href="/" class="nav-button">Back to Chat</a>', unsafe_allow_html=True)
     
     with st.container():
         col1, col2 = st.columns([1, 2])
