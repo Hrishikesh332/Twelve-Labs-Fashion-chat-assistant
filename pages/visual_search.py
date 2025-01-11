@@ -9,14 +9,14 @@ def main():
         .header {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #FF4B6B;
+            color: #81E831;
             margin-bottom: 1rem;
             text-align: center;
         }
         .nav-button {
             display: inline-block;
             padding: 0.5rem 1rem;
-            background-color: #FF4B6B;
+            background-color: #81E831;
             color: white;
             text-decoration: none;
             border-radius: 4px;
