@@ -2,7 +2,6 @@ import streamlit as st
 from utils import generate_embedding, insert_embeddings
 
 def add_product_data():
-    st.subheader("Add Product Data")
 
     col1, col2 = st.columns(2)
     
@@ -50,14 +49,14 @@ def main():
         .header {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #FF4B6B;
+            color: #81E831;
             margin-bottom: 1rem;
             text-align: center;
         }
         .nav-button {
             display: inline-block;
             padding: 0.5rem 1rem;
-            background-color: #FF4B6B;
+            background-color: #81E831;
             color: white;
             text-decoration: none;
             border-radius: 4px;
@@ -67,8 +66,8 @@ def main():
         """,
         unsafe_allow_html=True
     )
-    st.markdown('<div class="header">Add Product Data</div>', unsafe_allow_html=True)
-    st.title("Add Product Data")
+    st.markdown('<div class="header">Product Data Catalogue</div>', unsafe_allow_html=True)
+    st.title("Insert Product Data")
     add_product_data()
 
 if __name__ == "__main__":
