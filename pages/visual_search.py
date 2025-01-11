@@ -30,7 +30,7 @@ def main():
         """,
         unsafe_allow_html=True
     )
-st.markdown('<a href="/" class="nav-button">Back to Chat</a>', unsafe_allow_html=True)
+    st.markdown('<a href="/" class="nav-button">Back to Chat</a>', unsafe_allow_html=True)
     st.markdown('<div class="header">Visual Search</div>', unsafe_allow_html=True)
     st.subheader("Search Similar Product Clips")
     
