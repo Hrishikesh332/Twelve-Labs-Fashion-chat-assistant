@@ -13,7 +13,7 @@ st.markdown("""
     
     .stTitle {
         font-family: 'Helvetica Neue', sans-serif;
-        color: #FF4B6B;
+        color: #1e1e1e;
         font-weight: 700;
         padding-bottom: 2rem;
     }
@@ -23,8 +23,7 @@ st.markdown("""
         border-radius: 15px;
         padding: 1rem;
         margin: 0.5rem 0;
-        box-shadow: 0 2px 5px rgba(255, 75, 107, 0.1);
-        border: 1px solid rgba(255, 75, 107, 0.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     
     .product-card {
@@ -32,32 +31,23 @@ st.markdown("""
         border-radius: 10px;
         padding: 1.5rem;
         margin: 1rem 0;
-        box-shadow: 0 4px 6px rgba(255, 75, 107, 0.15);
-        border: 1px solid rgba(255, 75, 107, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .product-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(255, 75, 107, 0.2);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
     .nav-button {
-        background-color: #FF4B6B !important;
+        background-color: #FF4B6B !important;  /* Matching pink from app */
         color: white !important;
-        border-radius: 6px !important;
+        border-radius: 4px !important;
         border: none !important;
         padding: 0.5rem 1rem !important;
         cursor: pointer !important;
-        transition: all 0.2s ease !important;
-        font-weight: 500 !important;
     }
     
     .nav-button:hover {
-        background-color: #FF3355 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 2px 4px rgba(255, 75, 107, 0.2) !important;
+        background-color: #ff3d60 !important;  /* Slightly darker shade of the same pink */
+        opacity: 0.9;
     }
+    
     
     .nav-container {
         position: fixed;
@@ -67,46 +57,16 @@ st.markdown("""
         gap: 10px;
         z-index: 1000;
     }
-
     .stButton button {
         background-color: #FF4B6B !important;
         color: white !important;
         border: none !important;
-        transition: all 0.2s ease !important;
     }
-
+    
     .stButton button:hover {
-        background-color: #FF3355 !important;
-        transform: translateY(-1px) !important;
+        background-color: #ff3d60 !important;
+        opacity: 0.9;
     }
-
-    .stTextInput input, .stTextArea textarea {
-        border-color: rgba(255, 75, 107, 0.2) !important;
-        border-radius: 6px !important;
-    }
-
-    .stTextInput input:focus, .stTextArea textarea:focus {
-        border-color: #FF4B6B !important;
-        box-shadow: 0 0 0 3px rgba(255, 75, 107, 0.1) !important;
-    }
-
-    .streamlit-expanderHeader {
-        background-color: #fff5f7 !important;
-        border-radius: 6px !important;
-        border: 1px solid rgba(255, 75, 107, 0.2) !important;
-    }
-
-    .streamlit-expanderContent {
-        border: 1px solid rgba(255, 75, 107, 0.1) !important;
-        border-top: none !important;
-        border-radius: 0 0 6px 6px !important;
-    }
-
-    .divider {
-        border-top: 1px solid rgba(255, 75, 107, 0.2);
-        margin: 1rem 0;
-    }
-</style>
 </style>
 """, unsafe_allow_html=True)
 
@@ -119,12 +79,12 @@ def render_product_details(source):
             <div class="product-card">
                 <h3 style="color: #FF4B6B;">{source['title']}</h3>
                 <div style="margin: 1rem 0;">
-                    <div style="background: linear-gradient(90deg, #FF4B6B {source['similarity']}%, #fff5f7 {source['similarity']}%); 
+                    <div style="background: linear-gradient(90deg, #FF4B6B {source['similarity']}%, #f1f1f1 {source['similarity']}%); 
                          height: 6px; border-radius: 3px; margin-bottom: 0.5rem;"></div>
-                    <p style="color: #FF4B6B;">Similarity Score: {source['similarity']}%</p>
+                    <p style="color: #666;">Similarity Score: {source['similarity']}%</p>
                 </div>
-                <p style="color: #FF4B6B; font-size: 1.1em;">{source['description']}</p>
-                <p style="color: #FF6B88;">Product ID: {source['product_id']}</p>
+                <p style="color: #333; font-size: 1.1em;">{source['description']}</p>
+                <p style="color: #666;">Product ID: {source['product_id']}</p>
                 <a href="{source['link']}" target="_blank" style="
                     display: inline-block;
                     background: #FF4B6B;
@@ -134,7 +94,6 @@ def render_product_details(source):
                     text-decoration: none;
                     margin-top: 1rem;
                     transition: all 0.3s ease;
-                    font-weight: 500;
                 ">View on Store</a>
             </div>
             """, unsafe_allow_html=True)
@@ -147,7 +106,7 @@ def chat_page():
     st.markdown("""
         <div style="text-align: center; padding: 2rem 0;">
             <h1 style="color: #FF4B6B; font-size: 3em; font-weight: 800;">🤵‍♂️ Fashion AI Assistant</h1>
-            <p style="color: #FF6B88; font-size: 1.2em;">Your personal style advisor powered by AI</p>
+            <p style="color: #666; font-size: 1.2em;">Your personal style advisor powered by AI</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -199,10 +158,10 @@ def chat_page():
     
     with st.sidebar:
         st.markdown("""
-        <div style="padding: 1.5rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(255, 75, 107, 0.15); border: 1px solid rgba(255, 75, 107, 0.1);">
+        <div style="padding: 1.5rem; background-color: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <h2 style="color: #FF4B6B;">Your Fashion Style Guide</h2>
-            <p style="color: #FF6B88;">How can I help you with, There are various things I can help - </p>
-            <ul style="color: #FF6B88;">
+            <p style="color: #666;">How can I help you with, There are various things I can help - </p>
+            <ul style="color: #333;">
                 <li>Finding perfect outfits</li>
                 <li>Style recommendations</li>
                 <li>Product information</li>
@@ -210,6 +169,7 @@ def chat_page():
             </ul>
         </div>
         """, unsafe_allow_html=True)
+
 def main():
     query_params = st.query_params
     page = query_params.get("page", "chat")[0] if query_params.get("page") else "chat"
