@@ -26,11 +26,7 @@ def main():
             color: white !important;
             text-decoration: none;
         }
-
-        .stSlider [data-baseweb="slider"] div {
-            background-color: #81E831 !important;
-        }
-
+  
         .stButton button {
             background-color: #81E831 !important;
             border-color: #81E831 !important;
@@ -44,6 +40,29 @@ def main():
         """,
         unsafe_allow_html=True
     )
+
+    # Custom slider styling
+    st.markdown('''
+        <style>
+        /* Hide tick bar */
+        div.stSlider > div[data-baseweb="slider"] > div[data-testid="stTickBar"] > div {
+            background: rgb(1 1 1 / 0%);
+        }
+        /* Style slider cursor */
+        div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"] {
+            background-color: #81E831;
+            box-shadow: #81E831 0px 0px 0px 0.2rem;
+        }
+        /* Style slider number */
+        div.stSlider > div[data-baseweb="slider"] > div > div > div > div {
+            color: #81E831;
+        }
+        /* Style slider track */
+        div.stSlider > div[data-baseweb="slider"] > div > div {
+            background: linear-gradient(to right, #81E831 var(--slider-progress), rgba(151, 166, 195, 0.25) var(--slider-progress));
+        }
+        </style>
+    ''', unsafe_allow_html=True)
 
     st.markdown('<div class="header">Visual Search</div>', unsafe_allow_html=True)
     st.subheader("Search Similar Product Clips")
@@ -72,6 +91,19 @@ def main():
                     max_value=20,
                     value=2,
                     help="Select the number of similar videos to retrieve"
+                )
+                
+
+                slider_progress = (top_k - 1) / 19 * 100
+                st.markdown(
+                    f'''
+                    <style>
+                    div.stSlider > div[data-baseweb="slider"] > div > div {{
+                        background: linear-gradient(to right, #81E831 {slider_progress}%, rgba(151, 166, 195, 0.25) {slider_progress}%);
+                    }}
+                    </style>
+                    ''',
+                    unsafe_allow_html=True
                 )
                 
                 if st.button("Search", type="primary", use_container_width=True):
