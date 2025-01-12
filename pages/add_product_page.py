@@ -13,7 +13,7 @@ def add_product_data():
         link = st.text_input("Link")
         video_url = st.text_input("Video URL")
     
-    if st.button("Add Product", type="primary", use_container_width=True):
+    if st.button("Add Product", use_container_width=True, style='background-color: #81E831; color: white;'):
         if product_id and title and description and link and video_url:
             product_data = {
                 "product_id": product_id,
