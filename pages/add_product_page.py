@@ -2,7 +2,6 @@ import streamlit as st
 from utils import generate_embedding, insert_embeddings
 
 def add_product_data():
-
     col1, col2 = st.columns(2)
     
     with col1:
@@ -57,10 +56,14 @@ def main():
             display: inline-block;
             padding: 0.5rem 1rem;
             background-color: #81E831;
-            color: white;
+            color: white !important;
             text-decoration: none;
             border-radius: 4px;
             margin-top: 1rem;
+        }
+        .nav-button:hover {
+            color: white !important;
+            text-decoration: none;
         }
         </style>
         """,
