@@ -17,13 +17,13 @@ def main():
             display: inline-block;
             padding: 0.5rem 1rem;
             background-color: #FF4B6B;
-            color: white;
+            color: white !important;
             text-decoration: none;
             border-radius: 4px;
             margin-top: 1rem;
         }
         .nav-button:hover {
-            color: white;
+            color: white !important;
             text-decoration: none;
         }
         </style>
