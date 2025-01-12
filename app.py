@@ -135,7 +135,7 @@ def chat_page():
                 else:
                     st.markdown(message["content"])
 
-    prompt = st.chat_input("Ask about fashion products...")
+    prompt = st.chat_input("Hey! Ask me anything about fashion - styles, outfits, trends...")
     
     if prompt:
         with st.chat_message("user", avatar="👤"):
