@@ -26,6 +26,20 @@ def main():
             color: white !important;
             text-decoration: none;
         }
+
+        .stSlider [data-baseweb="slider"] div {
+            background-color: #81E831 !important;
+        }
+
+        .stButton button {
+            background-color: #81E831 !important;
+            border-color: #81E831 !important;
+            color: white !important;
+        }
+        .stButton button:hover {
+            background-color: #6bc729 !important;
+            border-color: #6bc729 !important;
+        }
         </style>
         """,
         unsafe_allow_html=True
