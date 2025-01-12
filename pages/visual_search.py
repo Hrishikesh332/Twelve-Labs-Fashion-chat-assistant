@@ -26,6 +26,21 @@ def main():
             color: white !important;
             text-decoration: none;
         }
+        .custom-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #81E831;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+            cursor: pointer;
+        }
+        .stSlider .stSlider {
+            color: #81E831;
+        }
         </style>
         """,
         unsafe_allow_html=True
@@ -60,7 +75,27 @@ def main():
                     help="Select the number of similar videos to retrieve"
                 )
                 
-                if st.button("Search", type="primary", use_container_width=True):
+                st.markdown(
+                    """
+                    <style>
+                    .custom-button {
+                        display: inline-block;
+                        padding: 0.5rem 1rem;
+                        background-color: #81E831;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 4px;
+                        margin-top: 1rem;
+                        width: 100%;
+                        text-align: center;
+                        cursor: pointer;
+                    }
+                    </style>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
+                if st.markdown('<div class="custom-button">Search</div>', unsafe_allow_html=True):
                     with st.spinner("Searching for similar videos..."):
                         results = search_similar_videos(uploaded_file, top_k=top_k)
                         
