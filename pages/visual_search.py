@@ -16,7 +16,7 @@ def main():
         .nav-button {
             display: inline-block;
             padding: 0.5rem 1rem;
-            background-color: #FF4B6B;
+            background-color: #81E831;
             color: white !important;
             text-decoration: none;
             border-radius: 4px;
