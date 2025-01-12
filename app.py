@@ -64,7 +64,7 @@ st.markdown("""
     }
     
     .stButton button:hover {
-        background-color: #ff3d60 !important;
+        background-color: #eeecec !important;
         opacity: 0.9;
     }
 </style>
