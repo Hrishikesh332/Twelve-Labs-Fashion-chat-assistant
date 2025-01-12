@@ -13,7 +13,27 @@ def add_product_data():
         link = st.text_input("Link")
         video_url = st.text_input("Video URL")
     
-    if st.button("Add Product", use_container_width=True, style='background-color: #81E831; color: white;'):
+    st.markdown(
+        """
+        <style>
+        .custom-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #81E831;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+            cursor: pointer;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    if st.markdown('<div class="custom-button">Insert Product</div>', unsafe_allow_html=True):
         if product_id and title and description and link and video_url:
             product_data = {
                 "product_id": product_id,
