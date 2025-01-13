@@ -2,7 +2,7 @@
 <div align="center">
   <h3 align="center">Fashion AI Assistant with Twelve Labs</h3>
   <p align="center">
-    Power of Search with the Twelve Labs Embed API
+    Power of Search with the Twelve Labs Embed API and Milvus
     <br />
     <a href="https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant">Explore the docs »</a>
     <br />
@@ -60,8 +60,6 @@ Try the Application Now:
 🔍 **AI Powered Chat**: Natural Language Interaction using the LLM (OpenAI model)
 
 🧠 **Smart Recommendation**: Context Aware Fashion Suggestions
-
-🔍 **Real Time Search**: Search Instant Product Discovery with the similairy scoring
 
 ![](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/workflow-fashion-assistant-twelve-labs.png)
 
