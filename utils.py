@@ -44,6 +44,7 @@ def generate_embedding(product_info):
             text=text
         ).text_embedding.segments[0].embeddings_float
         st.write("Text embedding generated successfully")
+
         
         # Create and wait for video embedding task
         st.write("Creating video embedding task...")
@@ -182,9 +183,11 @@ def search_similar_videos(image_file, top_k=5):
         
     except Exception as e:
         return None
-        
+
+
+# Get response using text embeddings search
 def get_rag_response(question):
-    """Get response using text embeddings search"""
+
     try:
         # Generate embedding for the question
         question_with_context = f"fashion product: {question}"
