@@ -61,6 +61,9 @@ Try the Application Now:
 
 🧠 **Smart Recommendation**: Context Aware Fashion Suggestions
 
+
+I will be updating it the workflow as per the updation -
+
 ![](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/workflow-fashion-assistant-twelve-labs.png)
 
 ## Tech Stack
