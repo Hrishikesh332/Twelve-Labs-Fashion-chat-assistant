@@ -34,7 +34,7 @@ The Fashion AI Assistant is a recommendation system that combines vector search 
 
 Try the Application Now:
 
-<a href="https://fashion-chat-twelvelabs.streamlit.app/" target="_blank" style="
+<a href="https://fashion-ai-chat.streamlit.app" target="_blank" style="
     display: inline-block;
     padding: 12px 24px;
     font-size: 18px;
