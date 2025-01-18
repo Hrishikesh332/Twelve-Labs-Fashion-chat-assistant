@@ -1,6 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
-from utils import generate_embedding, insert_embeddings, collection, get_multimodal_rag_response
+from utils import generate_embedding, insert_embeddings, collection, get_rag_response
 
 load_dotenv()
 
