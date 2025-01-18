@@ -318,7 +318,7 @@ def chat_page():
         with st.chat_message("assistant", avatar="👗"):
             with st.spinner("Finding perfect matches..."):
                 try:
-                    response_data = get_multimodal_rag_response(query)
+                    response_data = get_rag_response(query)
                     st.markdown(response_data["response"])
                     if response_data.get("metadata") and response_data["metadata"].get("sources"):
                         render_results_section(response_data)
@@ -347,7 +347,7 @@ def chat_page():
         with st.chat_message("assistant", avatar="👗"):
             with st.spinner("Finding perfect matches..."):
                 try:
-                    response_data = get_multimodal_rag_response(prompt)
+                    response_data = get_rag_response(prompt)
                     st.markdown(response_data["response"])
                     if response_data.get("metadata") and response_data["metadata"].get("sources"):
                         render_results_section(response_data)
