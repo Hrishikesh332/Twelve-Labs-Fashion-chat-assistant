@@ -354,7 +354,6 @@ def format_time_for_url(time_in_seconds):
         return "0"
 
 def create_video_embed(video_url, start_time=0, end_time=0):
-
     try:
         video_id, platform = get_video_id_from_url(video_url)
         start_seconds = format_time_for_url(start_time)
@@ -367,9 +366,9 @@ def create_video_embed(video_url, start_time=0, end_time=0):
                 <iframe 
                     width="100%" 
                     height="315" 
-                    src="https://player.vimeo.com/video/{video_id}#t={start_seconds}s"
+                    src="https://player.vimeo.com/video/{video_id}?autoplay=0#t={start_seconds}s"
                     frameborder="0" 
-                    allow="autoplay; fullscreen; picture-in-picture" 
+                    allow="fullscreen; picture-in-picture" 
                     allowfullscreen>
                 </iframe>
             """
@@ -379,7 +378,7 @@ def create_video_embed(video_url, start_time=0, end_time=0):
                     width="100%" 
                     height="315" 
                     controls 
-                    autoplay
+                    preload="metadata"
                     id="video-player">
                     <source src="{video_url}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -387,6 +386,7 @@ def create_video_embed(video_url, start_time=0, end_time=0):
                 <script>
                     document.getElementById('video-player').addEventListener('loadedmetadata', function() {{
                         this.currentTime = {start_time};
+                        this.pause();
                     }});
                 </script>
             """
