@@ -102,8 +102,8 @@ def main():
                     uploaded_file = default_image
 
             
-            if uploaded_file:
-                st.image(uploaded_file, caption="Query Image", use_column_width=True)
+           if uploaded_file:
+                st.image(uploaded_file, use_container_width=True)
         
         with col2:
             if uploaded_file:
