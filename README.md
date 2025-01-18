@@ -18,8 +18,11 @@
   <ol>
     <li><a href="#about">About</a></li>
     <li><a href="#features">Features</a></li>
+    <li><a href="#demonstration">Demonstration</a></li>
+    <li><a href="#workflow">Workflow</a></li>
     <li><a href="#tech-stack">Tech Stack</a></li>
     <li><a href="#instructions-on-running-project-locally">Instructions on Running Project Locally</a></li>
+    <li><a href="#usecases">Usecase</a></li>
     <li><a href="#feedback">Feedback</a></li>
   </ol>
 </details>
@@ -28,7 +31,9 @@
 
 ## About
 
-The Fashion AI Assistant is a recommendation system that combines vector search capabilities with multimodal AI to provide intelligent fashion recommendations. Using TwelveLabs' Marengo 2.6 retrieval embedding model and Milvus vector database, it offers semantic search and personalized fashion suggestions through an intuitive chat interface on streamlit
+Discover your perfect style with Fashion AI Assistant! This application combines the power of visual search, conversational AI, and video understanding to innovate how you explore and find fashion. Whether you're chatting about your style preferences or sharing a photo of an outfit you want, the application helps you discover exactly what you're looking for ✨
+
+Built with TwelveLabs marengo-retrieval-2.7 model, Milvus vector database, and OpenAI's gpt-3.5, this application brings together the latest in AI technology to create a personalized shopping experience. From finding similar products in video content to providing tailored fashion advice 🛍️
 
 ## Demonstration
 
@@ -55,12 +60,36 @@ Try the Application Now:
 
 ## Features
 
-🎯 **Semantic Search**: Advanced search capabilities using TwelveLabs' Marengo 2.6 embeddings
+🤖 Multimodal Search: Seamlessly search through fashion products using both text descriptions and image queries powered by TwelveLabs marengo-retrieval-2.7 model for embedding generation and the Milvus for vector database.
 
-🔍 **AI Powered Chat**: Natural Language Interaction using the LLM (OpenAI model)
+🎯 Visual Product Discovery: Upload images to find similar products and see exact video segments where they appear, with precise timestamps.
 
-🧠 **Smart Recommendation**: Context Aware Fashion Suggestions
+💬 AI Fashion Assistant: Natural conversation with the help of chatbot about style preferences and receive personalized fashion recommendations using gpt-3.5.
 
+💡 **Smart Suggestions**: Helpful prompt suggestions to guide users in discovering fashion products and styles effectively.
+
+
+## Demonstration
+
+Demo #1 - Insertion of Product Catalogue into the Milvus Collection
+
+![](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/demo_fashion_insertion.gif)
+
+
+Demo #2 - In this example, the product image - Black shirt - is provided as a query; the result is a video segment with metadata for this product.
+
+![](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/demo_visual_search.gif)
+
+
+Demo #3 - This example provides the query with the suggestion - "I'm looking for a black T-shirt", and LLM provides the result with the suggestions on styling and the product, and also the video segments.
+
+![](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/demo_rag_1.gif)
+
+Demo #4 - The following example provides the query "Suggest the Indian bridal wear", then it provides the relevant information around the various data modalities.
+
+![](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/demo_rag_2.gif)
+
+## Workflow
 
 I will be updating it the workflow as per the updation -
 
@@ -70,7 +99,7 @@ I will be updating it the workflow as per the updation -
 
 - **Frontend**: Streamlit, Javascript, CSS
 - **Backend**: Streamlit, Python
-- **AI Engine**: Integration with Twelve Labs SDK (Marengo 2.6 retreival and Open AI model)
+- **AI Engine**: Integration with Twelve Labs SDK (Marengo 2.7 retreival and Open AI model)
 - **Vector Database**: Milvus
 - **Deployment**: Streamlit Cloud
 
@@ -113,6 +142,21 @@ The application is live at -
 ```
 http://localhost:8501/
 ```
+
+## Usecases
+
+
+🛍️ E-commerce: Enhance product search and recommendations using text and image queries.
+
+🎵 Music Discovery: Find similar songs, artists, or genres based on audio clips and user preferences
+
+🎥 Intelligent Video Search Engine: Retrieves videos based on visual and audio appearing in the content. Enables efficient search of video for content creators, journalists, and researchers
+
+🗺️ Personalized Travel Planner: Curates travel itineraries based on user preferences, reviews, and destination data.
+
+📚Educational Resource Management: Organize and retrieve learning materials, such as text documents, presentations, videos, and interactive simulations, based on content and pedagogical requirements.
+
+🏀Sports Analytics: Analyze player and team performance using a combination of video footage, sensor data, and statistical records to inform coaching decisions and strategies.
 
 
 ## Feedback
