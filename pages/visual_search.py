@@ -100,9 +100,7 @@ def main():
                 default_image = load_default_image()
                 if default_image:
                     uploaded_file = default_image
-
-            
-           if uploaded_file:
+            if uploaded_file:
                 st.image(uploaded_file, use_container_width=True)
         
         with col2:
