@@ -185,13 +185,14 @@ def search_similar_videos(image_file, top_k=5):
         return None
 
 
-# Get response using text embeddings search
+# Get response using text embeddings to get multimodal result
 def get_rag_response(question):
-
     try:
-        # Generate embedding for the question
-        question_with_context = f"fashion product: {question}"
+        # Initialize TwelveLabs client
         twelvelabs_client = TwelveLabs(api_key=TWELVELABS_API_KEY)
+        
+        # Generate embedding for the question with fashion context
+        question_with_context = f"fashion product: {question}"
         question_embedding = twelvelabs_client.embed.create(
             model_name="Marengo-retrieval-2.7",
             text=question_with_context
@@ -205,78 +206,132 @@ def get_rag_response(question):
             }
         }
         
-        results = collection.search(
+        # Search for relevant text embeddings
+        text_results = collection.search(
             data=[question_embedding],
             anns_field="vector",
             param=search_params,
-            limit=1,
+            limit=2,  # Get top 2 text matches
             expr="embedding_type == 'text'",
             output_fields=["metadata"]
         )
+        
+        # Search for relevant video segments
+        video_results = collection.search(
+            data=[question_embedding],
+            anns_field="vector",
+            param=search_params,
+            limit=3,  # Get top 3 video segments
+            expr="embedding_type == 'video'",
+            output_fields=["metadata"]
+        )
 
-        retrieved_docs = []
-        for hits in results:
+        # Process text results
+        text_docs = []
+        for hits in text_results:
             for hit in hits:
                 metadata = hit.metadata
-                # Convert score from [-1,1] to [0,100] range
                 similarity = round((hit.score + 1) * 50, 2)
                 similarity = max(0, min(100, similarity))
                 
-                retrieved_docs.append({
+                text_docs.append({
                     "title": metadata.get('title', 'Untitled'),
                     "description": metadata.get('description', 'No description available'),
                     "product_id": metadata.get('product_id', ''),
                     "video_url": metadata.get('video_url', ''),
                     "link": metadata.get('link', ''),
                     "similarity": similarity,
-                    "raw_score": hit.score
+                    "raw_score": hit.score,
+                    "type": "text"
                 })
 
-        # Sort by similarity
-        retrieved_docs.sort(key=lambda x: x['similarity'], reverse=True)
+        # Process video results
+        video_docs = []
+        for hits in video_results:
+            for hit in hits:
+                metadata = hit.metadata
+                similarity = round((hit.score + 1) * 50, 2)
+                similarity = max(0, min(100, similarity))
+                
+                video_docs.append({
+                    "title": metadata.get('title', 'Untitled'),
+                    "description": metadata.get('description', 'No description available'),
+                    "product_id": metadata.get('product_id', ''),
+                    "video_url": metadata.get('video_url', ''),
+                    "link": metadata.get('link', ''),
+                    "similarity": similarity,
+                    "raw_score": hit.score,
+                    "start_time": metadata.get('start_time', 0),
+                    "end_time": metadata.get('end_time', 0),
+                    "type": "video"
+                })
 
-        if not retrieved_docs:
+        if not text_docs and not video_docs:
             return {
                 "response": "I couldn't find any matching products. Try describing what you're looking for differently.",
                 "metadata": None
             }
 
-        context = "\n\n".join([
-            f"Title: {doc['title']} (Relevance: {doc['similarity']}%)\nDescription: {doc['description']}"
-            for doc in retrieved_docs
+        # Create context from text results only for LLM
+        text_context = "\n\n".join([
+            f"Product: {doc['title']}\nDescription: {doc['description']}\nLink: {doc['link']}"
+            for doc in text_docs
         ])
 
+        # Create messages for chat completion
         messages = [
             {
                 "role": "system",
                 "content": """You are a professional fashion advisor and AI shopping assistant.
-                Provide stylish, engaging responses about fashion products.
-                Focus on style, trends, and helping customers find the perfect items."""
+                Organize your response in the following format:
+
+                First, provide a brief, direct answer to the user's query
+                Then, describe any relevant products found that match their request, including:
+                   - Product name and key features
+                   - Why this product matches their needs
+                   - Style suggestions for how to wear or use the item
+                Finally, provide any additional style advice or recommendations
+                
+                Keep your response engaging and natural while maintaining this clear structure.
+                Focus on being helpful and specific rather than promotional."""
             },
             {
                 "role": "user",
-                "content": f"Question: {question}\n\nContext: {context}"
+                "content": f"""Query: {question}
+
+Available Products:
+{text_context}
+
+Please provide fashion advice and product recommendations based on these options."""
             }
         ]
 
+        # Get response from OpenAI
         chat_response = openai_client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=messages
+            messages=messages,
+            temperature=0.7,
+            max_tokens=500
         )
 
+        # Format and return response
         return {
             "response": chat_response.choices[0].message.content,
             "metadata": {
-                "sources": retrieved_docs,
-                "total_sources": len(retrieved_docs)
+                "sources": text_docs + video_docs,
+                "total_sources": len(text_docs) + len(video_docs),
+                "text_sources": len(text_docs),
+                "video_sources": len(video_docs)
             }
         }
     
     except Exception as e:
+        st.error(f"Error in multimodal RAG: {str(e)}")
         return {
-            "response": "I encountered an error while processing your request.",
+            "response": "I encountered an error while processing your request. Please try again.",
             "metadata": None
         }
+ 
 
 # Extract video ID and platform from URL
 def get_video_id_from_url(video_url):
