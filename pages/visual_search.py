@@ -1,5 +1,19 @@
 import streamlit as st
 from utils import search_similar_videos, create_video_embed
+import os
+from PIL import Image
+import io
+
+
+def load_default_image():
+    try:
+        default_image_path = "src/tshirt-black.jpg"
+        if os.path.exists(default_image_path):
+            with open(default_image_path, "rb") as f:
+                return io.BytesIO(f.read())
+    except Exception as e:
+        st.error(f"Error loading default image: {str(e)}")
+    return None
 
 def main():
     st.set_page_config(page_title="Visual Search", page_icon=":mag:")
@@ -44,20 +58,16 @@ def main():
     # Custom slider styling
     st.markdown('''
         <style>
-        /* Hide tick bar */
         div.stSlider > div[data-baseweb="slider"] > div[data-testid="stTickBar"] > div {
             background: rgb(1 1 1 / 0%);
         }
-        /* Style slider cursor */
         div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"] {
             background-color: #81E831;
             box-shadow: #81E831 0px 0px 0px 0.2rem;
         }
-        /* Style slider number */
         div.stSlider > div[data-baseweb="slider"] > div > div > div > div {
             color: #81E831;
         }
-        /* Style slider track */
         div.stSlider > div[data-baseweb="slider"] > div > div {
             background: linear-gradient(to right, #81E831 var(--slider-progress), rgba(151, 166, 195, 0.25) var(--slider-progress));
         }
@@ -68,7 +78,14 @@ def main():
     st.subheader("Search Similar Product Clips")
     
     st.markdown('<a href="/" class="nav-button">Back to Chat</a>', unsafe_allow_html=True)
-    
+
+    st.markdown("""
+        <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin-bottom: 1rem;">
+            ℹ️ Using default test image. You can upload your own image to search for similar products.
+        </div>
+    """, unsafe_allow_html=True)
+
+
     with st.container():
         col1, col2 = st.columns([1, 2])
         
@@ -78,6 +95,12 @@ def main():
                 type=['png', 'jpg', 'jpeg'],
                 help="Select an image to find similar video segments"
             )
+
+            if not uploaded_file:
+                default_image = load_default_image()
+                if default_image:
+                    uploaded_file = default_image
+
             
             if uploaded_file:
                 st.image(uploaded_file, caption="Query Image", use_column_width=True)
