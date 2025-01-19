@@ -103,6 +103,8 @@ I will be updating it the workflow as per the updation -
 - **Vector Database**: Milvus
 - **Deployment**: Streamlit Cloud
 
+Replit Repo Link - ![Fashion AI Assistant Template](https://replit.com/@twelvelabs/Twelve-Labs-Fashion-chat-assistant?v=1)
+
 ## Instructions on Running Project Locally
 
 To run the **Fashion AI Assistant** locally, follow these steps -
