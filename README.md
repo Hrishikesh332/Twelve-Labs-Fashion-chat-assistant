@@ -103,7 +103,7 @@ I will be updating it the workflow as per the updation -
 - **Vector Database**: Milvus
 - **Deployment**: Streamlit Cloud
 
-Replit Repo Link - ![Fashion AI Assistant Template](https://replit.com/@twelvelabs/Twelve-Labs-Fashion-chat-assistant?v=1)
+Replit Repo Link - [Fashion AI Assistant Template](https://replit.com/@twelvelabs/Twelve-Labs-Fashion-chat-assistant?v=1)
 
 ## Instructions on Running Project Locally
 
