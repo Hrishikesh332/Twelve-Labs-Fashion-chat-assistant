@@ -2,7 +2,7 @@ import streamlit as st
 from utils import generate_embedding, insert_embeddings
 
 # Set this to False for demonstration mode (Disabling the insertion into the Database)
-ENABLE_INSERTIONS = Faslse  # Change to True to enable insertions
+ENABLE_INSERTIONS = False  # Change to True to enable insertions
 
 def add_product_data():
     # Add warning for demonstration mode
