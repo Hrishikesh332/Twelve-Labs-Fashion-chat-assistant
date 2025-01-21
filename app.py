@@ -285,8 +285,8 @@ def chat_page():
     # Navigation buttons
     st.markdown("""
         <div class="nav-container">
-            <a href="?page=add_product" class="nav-button">Add Product Data</a>
-            <a href="?page=visual_search" class="nav-button">Visual Search</a>
+            <a href="add_product_page" class="nav-button">Add Product Data</a>
+            <a href="visual_search" class="nav-button">Visual Search</a>
         </div>
     """, unsafe_allow_html=True)
 
