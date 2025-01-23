@@ -91,7 +91,13 @@ Demo #4 - The following example provides the query "Suggest the Indian bridal we
 
 ## Workflow
 
-I will be updating it the workflow as per the updation -
+#1 Multimodal Retreival Augment Generation Conversation Flow in App
+
+[Multimodal Retreival Augment Generation Conversation Flow in App](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/Chat_RAG_flow.png)
+
+#2 Semantic Search from Image to Video Segments
+
+[](https://github.com/Hrishikesh332/Twelve-Labs-Fashion-chat-assistant/blob/main/src/semantic_similar_videos_architecture.png)
 
 
 ## Tech Stack
